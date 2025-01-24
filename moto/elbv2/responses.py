@@ -951,7 +951,7 @@ CREATE_RULE_TEMPLATE = """<CreateRuleResponse xmlns="http://elasticloadbalancing
               <Values>
                 {% for value in condition["QueryStringConfig"]["Values"] %}
                 <member>
-                    <Key>{{ value["Key"] }}</Key>
+                    {% if "Key" in value %}<Key>{{ value["Key"] }}</Key>{% endif %}
                     <Value>{{ value["Value"] }}</Value>
                 </member>
                 {% endfor %}
@@ -1203,7 +1203,7 @@ DESCRIBE_RULES_TEMPLATE = """<DescribeRulesResponse xmlns="http://elasticloadbal
               <Values>
                 {% for value in condition["QueryStringConfig"]["Values"] %}
                 <member>
-                    <Key>{{ value["Key"] }}</Key>
+                    {% if "Key" in value %}<Key>{{ value["Key"] }}</Key>{% endif %}
                     <Value>{{ value["Value"] }}</Value>
                 </member>
                 {% endfor %}
@@ -1437,7 +1437,7 @@ MODIFY_RULE_TEMPLATE = """<ModifyRuleResponse xmlns="http://elasticloadbalancing
               <Values>
                 {% for value in condition["QueryStringConfig"]["Values"] %}
                 <member>
-                    <Key>{{ value["Key"] }}</Key>
+                    {% if "Key" in value %}<Key>{{ value["Key"] }}</Key>{% endif %}
                     <Value>{{ value["Value"] }}</Value>
                 </member>
                 {% endfor %}
@@ -1654,7 +1654,7 @@ SET_RULE_PRIORITIES_TEMPLATE = """<SetRulePrioritiesResponse xmlns="http://elast
               <Values>
                 {% for value in condition["QueryStringConfig"]["Values"] %}
                 <member>
-                    <Key>{{ value["Key"] }}</Key>
+                    {% if "Key" in value %}<Key>{{ value["Key"] }}</Key>{% endif %}
                     <Value>{{ value["Value"] }}</Value>
                 </member>
                 {% endfor %}

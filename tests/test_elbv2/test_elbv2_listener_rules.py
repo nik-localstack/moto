@@ -97,6 +97,10 @@ def setup_target_group(boto_client):
             "Field": "query-string",
             "QueryStringConfig": {"Values": [{"Key": "hello", "Value": "world"}]},
         },
+        {
+            "Field": "query-string",
+            "QueryStringConfig": {"Values": [{"Value": "world"}]},
+        },
         {"Field": "source-ip", "SourceIpConfig": {"Values": ["172.28.7.0/24"]}},
     ],
 )
@@ -166,6 +170,16 @@ def test_create_rule_condition(condition):
             {
                 "Field": "path-pattern",
                 "PathPatternConfig": {"Values": ["/home", "/about"]},
+            },
+        ),
+        (
+            {
+                "Field": "query-string",
+                "QueryStringConfig": {"Values": [{"Key": "hello", "Value": "world"}]},
+            },
+            {
+                "Field": "query-string",
+                "QueryStringConfig": {"Values": [{"Value": "world"}]},
             },
         ),
     ],
@@ -321,6 +335,19 @@ def test_describe_unknown_rule():
 
 @mock_aws
 @pytest.mark.parametrize(
+    "condition",
+    [
+        {
+            "Field": "host-header",
+            "HostHeaderConfig": {"Values": ["example.com", "www.example.com"]},
+        },
+        {
+            "Field": "query-string",
+            "QueryStringConfig": {"Values": [{"Value": "world"}]},
+        },
+    ],
+)
+@pytest.mark.parametrize(
     "action",
     [
         (
@@ -382,7 +409,7 @@ def test_describe_unknown_rule():
         ),
     ],
 )
-def test_create_rule_action(action):
+def test_create_rule_action(action, condition):
     conn = boto3.client("elbv2", region_name="us-east-1")
 
     http_listener_arn = setup_listener(conn)
@@ -391,7 +418,7 @@ def test_create_rule_action(action):
     response = conn.create_rule(
         ListenerArn=http_listener_arn,
         Priority=100,
-        Conditions=[],
+        Conditions=[condition],
         Actions=[action],
     )
 
@@ -399,7 +426,7 @@ def test_create_rule_action(action):
     assert len(response["Rules"]) == 1
     rule = response.get("Rules")[0]
     assert rule["Priority"] == "100"
-    assert rule["Conditions"] == []
+    assert rule["Conditions"] == [condition]
     assert rule["Actions"] == [action]
 
     # assert describe_rules response
@@ -417,7 +444,7 @@ def test_create_rule_action(action):
     assert len(response["Rules"]) == 1
     rule = response.get("Rules")[0]
     assert rule["Priority"] == "99"
-    assert rule["Conditions"] == []
+    assert rule["Conditions"] == [condition]
     assert rule["Actions"][0] == action
 
 
